@@ -119,9 +119,11 @@ def login():
             user = conn.execute(query).fetchone()
             conn.close()
             if user:
-                session["uid"] = user["uid"]
-                return redirect(url_for('index'))
-            return render_template('login.html', error="로그인 실패")
+                if user['pw'] == password:
+                    session["uid"] = user["uid"]
+                    return redirect(url_for('index')) 
+                return render_template('login.html', error=None)
+            return render_template('login.html', error="로그인 실패")         
         except Exception:
             return render_template('login.html', error="로그인 실패")
             
