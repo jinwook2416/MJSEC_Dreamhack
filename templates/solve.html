@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>Solve - MJSEC Dreamhack</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #1a1a1a; color: white; }
+        .solve-container { max-width: 700px; margin-top: 50px; }
+        .card { background-color: #2b2b2b; border: 1px solid #444; color: white; padding: 30px; }
+        .form-control { background-color: #1a1a1a; color: white; border-color: #444; }
+        .form-control:focus { background-color: #1a1a1a; color: white; border-color: #007bff; box-shadow: none; }
+        hr { border-color: #444; opacity: 1; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-dark mb-5">
+        <div class="container">
+            <a class="navbar-brand" href="/">MJSEC Dreamhack</a>
+        </div>
+    </nav>
+
+    <div class="container solve-container">
+        <div class="card">
+            <h2 class="mb-4">{{ problem.title }}</h2>
+            <hr>
+            <p class="lead mb-4" style="white-space: pre-wrap;">{{ problem.content }}</p>
+            
+            {% if problem.filename %}
+            <div class="mb-4">
+                <a href="{{ url_for('download_file', filename=problem.filename) }}" 
+                   class="btn btn-outline-info w-100 py-2" download>
+                   Download Attachment: {{ problem.filename }}
+                </a>
+                <a href="{{ url_for('execute_file', filename=problem.filename) }}" 
+                   class="btn btn-success w-100 py-3 fw-bold" target="_blank">
+                    Run File: {{problem.filename}}
+                </a>
+            </div>
+            {% endif %}
+
+            <div class="mt-4">
+                <label class="form-label fw-bold">Submit Flag</label>
+                <div class="input-group mb-3">
+                    <input type="text" id="flagInput" class="form-control" placeholder="DH{...}">
+                    <button class="btn btn-success px-4" type="button" onclick="submitFlag()">제출</button>
+                </div>
+                <div id="resultMessage" class="mt-3 fw-bold text-center"></div>
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <a href="/list" class="text-secondary text-decoration-none small">← Back to Challenge List</a>
+        </div>
+    </div>
+
+    <script>
+        async function submitFlag() {
+            const flagInput = document.getElementById('flagInput');
+            const msgDiv = document.getElementById('resultMessage');
+            
+            const res = await fetch('/solve/{{ problem.id }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ flag: flagInput.value })
+            });
+            
+            const data = await res.json();
+            msgDiv.innerText = data.message;
+            msgDiv.style.color = data.success ? '#28a745' : '#dc3545';
+            
+            if (data.success) flagInput.value = ''; // 성공 시 입력창 초기화
+        }
+    </script>
+</body>
+</html>
