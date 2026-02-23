@@ -1,1 +1,0 @@
-DH{welcome_to_mjsec_dreamhack}
